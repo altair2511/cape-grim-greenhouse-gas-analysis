@@ -1,6 +1,7 @@
 ############################################################
 # ATMOSPHERIC GREENHOUSE GAS ANALYSIS - CAPE GRIM
 # GitHub Repository Version
+# Set whole repository as the working directory before running
 ############################################################
 
 ############################
