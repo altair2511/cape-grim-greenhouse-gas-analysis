@@ -1,6 +1,6 @@
 ############################################################
 # ATMOSPHERIC GREENHOUSE GAS ANALYSIS - CAPE GRIM
-# COMPLETE FINAL GITHUB VERSION
+# FINAL CODE (Select the repository folder as working directory)
 ############################################################
 
 ############################
@@ -21,7 +21,29 @@ library(readxl)
 library(gridExtra)
 library(reshape2)
 
-theme_set(theme_bw())
+############################################################
+# GLOBAL THEME
+############################################################
+
+theme_set(
+  theme_bw() +
+    theme(
+      plot.title = element_text(
+        face = "bold",
+        size = 14
+      ),
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    )
+)
+
+############################################################
+# COLOUR PALETTE
+############################################################
+
+co2_col <- "#0072B2"
+ch4_col <- "#D55E00"
+n2o_col <- "#009E73"
 
 ############################################################
 # 2. IMPORT DATA
@@ -32,7 +54,12 @@ ghg <- read_excel(
 )
 
 ghg <- ghg %>%
-  select(Date, `CO2(PPM)`, `CH4(PPB)`, `N2O(PPB)`) %>%
+  select(
+    Date,
+    `CO2(PPM)`,
+    `CH4(PPB)`,
+    `N2O(PPB)`
+  ) %>%
   rename(
     CO2 = `CO2(PPM)`,
     CH4 = `CH4(PPB)`,
@@ -115,13 +142,7 @@ desc_stats <- data.frame(
   )
 )
 
-cat("\n================ DESCRIPTIVE STATISTICS ================\n")
-
 print(desc_stats)
-
-############################################################
-# EXPORT DESCRIPTIVE STATISTICS
-############################################################
 
 write.csv(
   desc_stats,
@@ -140,64 +161,52 @@ write.csv(
 hist_co2 <- ggplot(ghg, aes(CO2)) +
   geom_histogram(
     bins = 30,
-    fill = "white",
-    colour = "black"
+    fill = co2_col,
+    colour = "black",
+    alpha = 0.8
   ) +
   labs(
     title = "CO2 Histogram",
     x = "CO2 (PPM)",
     y = "Frequency"
-  ) +
-  theme_bw()
+  )
 
 hist_ch4 <- ggplot(ghg, aes(CH4)) +
   geom_histogram(
     bins = 30,
-    fill = "white",
-    colour = "black"
+    fill = ch4_col,
+    colour = "black",
+    alpha = 0.8
   ) +
   labs(
     title = "CH4 Histogram",
     x = "CH4 (PPB)",
     y = "Frequency"
-  ) +
-  theme_bw()
+  )
 
 hist_n2o <- ggplot(ghg, aes(N2O)) +
   geom_histogram(
     bins = 30,
-    fill = "white",
-    colour = "black"
+    fill = n2o_col,
+    colour = "black",
+    alpha = 0.8
   ) +
   labs(
     title = "N2O Histogram",
     x = "N2O (PPB)",
     y = "Frequency"
-  ) +
-  theme_bw()
+  )
 
-grid.arrange(hist_co2, hist_ch4, hist_n2o, nrow = 1)
-
-ggsave(
-  "figures/co2_histogram.png",
+grid.arrange(
   hist_co2,
-  width = 6,
-  height = 5
-)
-
-ggsave(
-  "figures/ch4_histogram.png",
   hist_ch4,
-  width = 6,
-  height = 5
+  hist_n2o,
+  nrow = 1
 )
 
-ggsave(
-  "figures/n2o_histogram.png",
-  hist_n2o,
-  width = 6,
-  height = 5
-)
+ggsave("figures/co2_histogram.png", hist_co2, width = 6, height = 5)
+ggsave("figures/ch4_histogram.png", hist_ch4, width = 6, height = 5)
+ggsave("figures/n2o_histogram.png", hist_n2o, width = 6, height = 5)
 
 ############################
 # DENSITY PLOTS
@@ -205,39 +214,36 @@ ggsave(
 
 density_co2 <- ggplot(ghg, aes(CO2)) +
   geom_density(
-    colour = "black",
-    linewidth = 1
+    colour = co2_col,
+    linewidth = 1.2
   ) +
   labs(
     title = "CO2 Density Plot",
     x = "CO2 (PPM)",
     y = "Density"
-  ) +
-  theme_bw()
+  )
 
 density_ch4 <- ggplot(ghg, aes(CH4)) +
   geom_density(
-    colour = "black",
-    linewidth = 1
+    colour = ch4_col,
+    linewidth = 1.2
   ) +
   labs(
     title = "CH4 Density Plot",
     x = "CH4 (PPB)",
     y = "Density"
-  ) +
-  theme_bw()
+  )
 
 density_n2o <- ggplot(ghg, aes(N2O)) +
   geom_density(
-    colour = "black",
-    linewidth = 1
+    colour = n2o_col,
+    linewidth = 1.2
   ) +
   labs(
     title = "N2O Density Plot",
     x = "N2O (PPB)",
     y = "Density"
-  ) +
-  theme_bw()
+  )
 
 grid.arrange(
   density_co2,
@@ -246,26 +252,9 @@ grid.arrange(
   nrow = 1
 )
 
-ggsave(
-  "figures/co2_density.png",
-  density_co2,
-  width = 6,
-  height = 5
-)
-
-ggsave(
-  "figures/ch4_density.png",
-  density_ch4,
-  width = 6,
-  height = 5
-)
-
-ggsave(
-  "figures/n2o_density.png",
-  density_n2o,
-  width = 6,
-  height = 5
-)
+ggsave("figures/co2_density.png", density_co2, width = 6, height = 5)
+ggsave("figures/ch4_density.png", density_ch4, width = 6, height = 5)
+ggsave("figures/n2o_density.png", density_n2o, width = 6, height = 5)
 
 ############################
 # QQ PLOTS
@@ -275,7 +264,7 @@ qq_co2 <- ggplot(
   ghg,
   aes(sample = CO2)
 ) +
-  stat_qq(colour = "black") +
+  stat_qq(colour = co2_col) +
   stat_qq_line(
     colour = "black",
     linewidth = 1
@@ -284,8 +273,7 @@ qq_co2 <- ggplot(
     title = "CO2 QQ Plot",
     x = "Theoretical Quantiles",
     y = "Sample Quantiles"
-  ) +
-  theme_bw()
+  )
 
 print(qq_co2)
 
@@ -300,7 +288,7 @@ qq_ch4 <- ggplot(
   ghg,
   aes(sample = CH4)
 ) +
-  stat_qq(colour = "black") +
+  stat_qq(colour = ch4_col) +
   stat_qq_line(
     colour = "black",
     linewidth = 1
@@ -309,8 +297,7 @@ qq_ch4 <- ggplot(
     title = "CH4 QQ Plot",
     x = "Theoretical Quantiles",
     y = "Sample Quantiles"
-  ) +
-  theme_bw()
+  )
 
 print(qq_ch4)
 
@@ -325,7 +312,7 @@ qq_n2o <- ggplot(
   ghg,
   aes(sample = N2O)
 ) +
-  stat_qq(colour = "black") +
+  stat_qq(colour = n2o_col) +
   stat_qq_line(
     colour = "black",
     linewidth = 1
@@ -334,8 +321,7 @@ qq_n2o <- ggplot(
     title = "N2O QQ Plot",
     x = "Theoretical Quantiles",
     y = "Sample Quantiles"
-  ) +
-  theme_bw()
+  )
 
 print(qq_n2o)
 
@@ -350,32 +336,47 @@ ggsave(
 # 6. TIME SERIES ANALYSIS
 ############################################################
 
-time_co2 <- ggplot(ghg, aes(Date, CO2)) +
-  geom_line(colour = "black") +
+time_co2 <- ggplot(
+  ghg,
+  aes(Date, CO2)
+) +
+  geom_line(
+    colour = co2_col,
+    linewidth = 0.8
+  ) +
   labs(
     title = "CO2 Time Series",
     x = "Date",
     y = "CO2 (PPM)"
-  ) +
-  theme_bw()
+  )
 
-time_ch4 <- ggplot(ghg, aes(Date, CH4)) +
-  geom_line(colour = "black") +
+time_ch4 <- ggplot(
+  ghg,
+  aes(Date, CH4)
+) +
+  geom_line(
+    colour = ch4_col,
+    linewidth = 0.8
+  ) +
   labs(
     title = "CH4 Time Series",
     x = "Date",
     y = "CH4 (PPB)"
-  ) +
-  theme_bw()
+  )
 
-time_n2o <- ggplot(ghg, aes(Date, N2O)) +
-  geom_line(colour = "black") +
+time_n2o <- ggplot(
+  ghg,
+  aes(Date, N2O)
+) +
+  geom_line(
+    colour = n2o_col,
+    linewidth = 0.8
+  ) +
   labs(
     title = "N2O Time Series",
     x = "Date",
     y = "N2O (PPB)"
-  ) +
-  theme_bw()
+  )
 
 print(time_co2)
 print(time_ch4)
@@ -406,47 +407,66 @@ ggsave(
 # 7. CORRELATION ANALYSIS
 ############################################################
 
-scatter_co2_ch4 <- ggplot(ghg, aes(CO2, CH4)) +
-  geom_point(colour = "black") +
+############################
+# SCATTER PLOTS
+############################
+
+scatter_co2_ch4 <- ggplot(
+  ghg,
+  aes(CO2, CH4)
+) +
+  geom_point(
+    colour = co2_col,
+    alpha = 0.7
+  ) +
   geom_smooth(
     method = "lm",
     se = FALSE,
-    colour = "black"
+    colour = ch4_col
   ) +
   labs(
     title = "CO2 vs CH4",
     x = "CO2 (PPM)",
     y = "CH4 (PPB)"
-  ) +
-  theme_bw()
+  )
 
-scatter_co2_n2o <- ggplot(ghg, aes(CO2, N2O)) +
-  geom_point(colour = "black") +
+scatter_co2_n2o <- ggplot(
+  ghg,
+  aes(CO2, N2O)
+) +
+  geom_point(
+    colour = co2_col,
+    alpha = 0.7
+  ) +
   geom_smooth(
     method = "lm",
     se = FALSE,
-    colour = "black"
+    colour = n2o_col
   ) +
   labs(
     title = "CO2 vs N2O",
     x = "CO2 (PPM)",
     y = "N2O (PPB)"
-  ) +
-  theme_bw()
+  )
 
-scatter_ch4_n2o <- ggplot(ghg, aes(CH4, N2O)) +
-  geom_point(colour = "black") +
+scatter_ch4_n2o <- ggplot(
+  ghg,
+  aes(CH4, N2O)
+) +
+  geom_point(
+    colour = ch4_col,
+    alpha = 0.7
+  ) +
   geom_smooth(
     method = "lm",
     se = FALSE,
-    colour = "black"
+    colour = n2o_col
   ) +
   labs(
     title = "CH4 vs N2O",
     x = "CH4 (PPB)",
     y = "N2O (PPB)"
-  ) +
-  theme_bw()
+  )
 
 print(scatter_co2_ch4)
 print(scatter_co2_n2o)
@@ -473,13 +493,19 @@ ggsave(
   height = 5
 )
 
+############################
+# SPEARMAN CORRELATION
+############################
+
 cor_matrix <- cor(
   ghg[, c("CO2", "CH4", "N2O")],
   method = "spearman",
   use = "complete.obs"
 )
 
-cat("\n================ SPEARMAN CORRELATION MATRIX ================\n")
+cat(
+  "\n================ SPEARMAN CORRELATION MATRIX ================\n"
+)
 
 print(cor_matrix)
 
@@ -492,16 +518,43 @@ write.csv(
 # 8. LINEAR REGRESSION ANALYSIS
 ############################################################
 
-model_co2 <- lm(CO2 ~ Year, data = ghg)
-model_ch4 <- lm(CH4 ~ Year, data = ghg)
-model_n2o <- lm(N2O ~ Year, data = ghg)
+############################
+# REGRESSION MODELS
+############################
+
+model_co2 <- lm(
+  CO2 ~ Year,
+  data = ghg
+)
+
+model_ch4 <- lm(
+  CH4 ~ Year,
+  data = ghg
+)
+
+model_n2o <- lm(
+  N2O ~ Year,
+  data = ghg
+)
+
+############################
+# MODEL SUMMARIES
+############################
 
 summary(model_co2)
 summary(model_ch4)
 summary(model_n2o)
 
+############################
+# REGRESSION SUMMARY TABLE
+############################
+
 regression_summary <- data.frame(
-  Gas = c("CO2", "CH4", "N2O"),
+  Gas = c(
+    "CO2",
+    "CH4",
+    "N2O"
+  ),
   
   Slope = c(
     coef(model_co2)[2],
@@ -530,47 +583,69 @@ write.csv(
   row.names = FALSE
 )
 
-reg_co2 <- ggplot(ghg, aes(Year, CO2)) +
-  geom_point(colour = "black") +
+############################
+# REGRESSION PLOTS
+############################
+
+reg_co2 <- ggplot(
+  ghg,
+  aes(Year, CO2)
+) +
+  geom_point(
+    colour = co2_col,
+    alpha = 0.6
+  ) +
   geom_smooth(
     method = "lm",
     se = FALSE,
-    colour = "black"
+    colour = "black",
+    linewidth = 1
   ) +
   labs(
     title = "CO2 Linear Regression",
     x = "Year",
     y = "CO2 (PPM)"
-  ) +
-  theme_bw()
+  )
 
-reg_ch4 <- ggplot(ghg, aes(Year, CH4)) +
-  geom_point(colour = "black") +
+reg_ch4 <- ggplot(
+  ghg,
+  aes(Year, CH4)
+) +
+  geom_point(
+    colour = ch4_col,
+    alpha = 0.6
+  ) +
   geom_smooth(
     method = "lm",
     se = FALSE,
-    colour = "black"
+    colour = "black",
+    linewidth = 1
   ) +
   labs(
     title = "CH4 Linear Regression",
     x = "Year",
     y = "CH4 (PPB)"
-  ) +
-  theme_bw()
+  )
 
-reg_n2o <- ggplot(ghg, aes(Year, N2O)) +
-  geom_point(colour = "black") +
+reg_n2o <- ggplot(
+  ghg,
+  aes(Year, N2O)
+) +
+  geom_point(
+    colour = n2o_col,
+    alpha = 0.6
+  ) +
   geom_smooth(
     method = "lm",
     se = FALSE,
-    colour = "black"
+    colour = "black",
+    linewidth = 1
   ) +
   labs(
     title = "N2O Linear Regression",
     x = "Year",
     y = "N2O (PPB)"
-  ) +
-  theme_bw()
+  )
 
 print(reg_co2)
 print(reg_ch4)
@@ -609,8 +684,16 @@ ghg <- ghg %>%
     N2O_change = abs(N2O - lag(N2O))
   )
 
+############################
+# VARIABILITY STATISTICS
+############################
+
 variability_stats <- data.frame(
-  Gas = c("CO2", "CH4", "N2O"),
+  Gas = c(
+    "CO2",
+    "CH4",
+    "N2O"
+  ),
   
   Median_Absolute_Change = c(
     median(ghg$CO2_change, na.rm = TRUE),
@@ -649,12 +732,20 @@ wilcox_ch4_n2o <- wilcox.test(
   alternative = "two.sided"
 )
 
+cat(
+  "\n================ WILCOXON TEST RESULTS ================\n"
+)
+
 print(wilcox_ch4_co2)
 print(wilcox_ch4_n2o)
 
 ############################################################
 # 11. SEASONAL ANALYSIS
 ############################################################
+
+############################
+# MONTHLY MEDIANS
+############################
 
 monthly_medians <- ghg %>%
   group_by(Month) %>%
@@ -669,66 +760,33 @@ monthly_long <- melt(
   id.vars = "Month"
 )
 
+############################
+# CO2 SEASONALITY
+############################
+
 season_co2 <- ggplot(
   monthly_medians,
-  aes(Month, CO2, group = 1)
+  aes(
+    Month,
+    CO2,
+    group = 1
+  )
 ) +
-  geom_line(colour = "black") +
-  geom_point(colour = "black") +
+  geom_line(
+    colour = co2_col,
+    linewidth = 1
+  ) +
+  geom_point(
+    colour = co2_col,
+    size = 2.5
+  ) +
   labs(
     title = "Seasonal Trend of CO2",
     x = "Month",
     y = "Median CO2 Concentration (PPM)"
-  ) +
-  theme_bw()
-
-season_ch4 <- ggplot(
-  monthly_medians,
-  aes(Month, CH4, group = 1)
-) +
-  geom_line(colour = "black") +
-  geom_point(colour = "black") +
-  labs(
-    title = "Seasonal Trend of CH4",
-    x = "Month",
-    y = "Median CH4 Concentration (PPB)"
-  ) +
-  theme_bw()
-
-season_n2o <- ggplot(
-  monthly_medians,
-  aes(Month, N2O, group = 1)
-) +
-  geom_line(colour = "black") +
-  geom_point(colour = "black") +
-  labs(
-    title = "Seasonal Trend of N2O",
-    x = "Month",
-    y = "Median N2O Concentration (PPB)"
-  ) +
-  theme_bw()
-
-season_combined <- ggplot(
-  monthly_long,
-  aes(Month, value, group = variable)
-) +
-  geom_line(colour = "black") +
-  geom_point(colour = "black") +
-  facet_wrap(
-    ~variable,
-    scales = "free_y"
-  ) +
-  labs(
-    title = "Monthly Median Seasonal Trends",
-    x = "Month",
-    y = "Median Concentration"
-  ) +
-  theme_bw()
+  )
 
 print(season_co2)
-print(season_ch4)
-print(season_n2o)
-print(season_combined)
 
 ggsave(
   "figures/co2_seasonality.png",
@@ -737,12 +795,68 @@ ggsave(
   height = 5
 )
 
+############################
+# CH4 SEASONALITY
+############################
+
+season_ch4 <- ggplot(
+  monthly_medians,
+  aes(
+    Month,
+    CH4,
+    group = 1
+  )
+) +
+  geom_line(
+    colour = ch4_col,
+    linewidth = 1
+  ) +
+  geom_point(
+    colour = ch4_col,
+    size = 2.5
+  ) +
+  labs(
+    title = "Seasonal Trend of CH4",
+    x = "Month",
+    y = "Median CH4 Concentration (PPB)"
+  )
+
+print(season_ch4)
+
 ggsave(
   "figures/ch4_seasonality.png",
   season_ch4,
   width = 7,
   height = 5
 )
+
+############################
+# N2O SEASONALITY
+############################
+
+season_n2o <- ggplot(
+  monthly_medians,
+  aes(
+    Month,
+    N2O,
+    group = 1
+  )
+) +
+  geom_line(
+    colour = n2o_col,
+    linewidth = 1
+  ) +
+  geom_point(
+    colour = n2o_col,
+    size = 2.5
+  ) +
+  labs(
+    title = "Seasonal Trend of N2O",
+    x = "Month",
+    y = "Median N2O Concentration (PPB)"
+  )
+
+print(season_n2o)
 
 ggsave(
   "figures/n2o_seasonality.png",
@@ -751,6 +865,45 @@ ggsave(
   height = 5
 )
 
+############################
+# COMBINED SEASONALITY PLOT
+############################
+
+season_combined <- ggplot(
+  monthly_long,
+  aes(
+    Month,
+    value,
+    colour = variable,
+    group = variable
+  )
+) +
+  geom_line(
+    linewidth = 1
+  ) +
+  geom_point(
+    size = 2
+  ) +
+  scale_colour_manual(
+    values = c(
+      "CO2" = co2_col,
+      "CH4" = ch4_col,
+      "N2O" = n2o_col
+    )
+  ) +
+  facet_wrap(
+    ~variable,
+    scales = "free_y"
+  ) +
+  labs(
+    title = "Monthly Median Seasonal Trends",
+    x = "Month",
+    y = "Median Concentration",
+    colour = "Gas"
+  )
+
+print(season_combined)
+
 ggsave(
   "figures/combined_seasonality.png",
   season_combined,
@@ -758,11 +911,19 @@ ggsave(
   height = 6
 )
 
+############################################################
+# 12. SEASONAL AMPLITUDE
+############################################################
+
 seasonal_amplitude <- monthly_long %>%
   group_by(variable) %>%
   summarise(
     Seasonal_Amplitude = max(value) - min(value)
   )
+
+cat(
+  "\n================ SEASONAL AMPLITUDE ================\n"
+)
 
 print(seasonal_amplitude)
 
@@ -773,7 +934,7 @@ write.csv(
 )
 
 ############################################################
-# FINAL MESSAGE
+# FINAL COMPLETION MESSAGE
 ############################################################
 
 cat(
